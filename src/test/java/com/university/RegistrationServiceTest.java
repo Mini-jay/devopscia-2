@@ -9,20 +9,14 @@ class RegistrationServiceTest {
 
     @Test
     void shouldRegisterStudentForValidCourse() {
-
         Student student = new Student("S101", "Anita");
 
         Course course = new Course(
-                "CS301",
-                "Data Structures",
-                4,
-                30,
-                true,
-                null
+                "CS301", "Data Structures",
+                4, 30, true, null
         );
 
         RegistrationService service = new RegistrationService();
-
         boolean result = service.register(student, course);
 
         assertTrue(result);
@@ -33,20 +27,14 @@ class RegistrationServiceTest {
 
     @Test
     void shouldRejectInactiveCourse() {
-
         Student student = new Student("S101", "Anita");
 
         Course course = new Course(
-                "CS301",
-                "Data Structures",
-                4,
-                30,
-                false,
-                null
+                "CS301", "Data Structures",
+                4, 30, false, null
         );
 
         RegistrationService service = new RegistrationService();
-
         boolean result = service.register(student, course);
 
         assertFalse(result);
@@ -57,20 +45,14 @@ class RegistrationServiceTest {
 
     @Test
     void shouldRejectMissingPrerequisite() {
-
         Student student = new Student("S101", "Anita");
 
         Course course = new Course(
-                "CS401",
-                "Advanced Algorithms",
-                4,
-                30,
-                true,
-                "CS301"
+                "CS401", "Advanced Algorithms",
+                4, 30, true, "CS301"
         );
 
         RegistrationService service = new RegistrationService();
-
         boolean result = service.register(student, course);
 
         assertFalse(result);
@@ -81,21 +63,15 @@ class RegistrationServiceTest {
 
     @Test
     void shouldAllowRegistrationWhenPrerequisiteIsCompleted() {
-
         Student student = new Student("S101", "Anita");
         student.addCompletedPrerequisite("CS301");
 
         Course course = new Course(
-                "CS401",
-                "Advanced Algorithms",
-                4,
-                30,
-                true,
-                "CS301"
+                "CS401", "Advanced Algorithms",
+                4, 30, true, "CS301"
         );
 
         RegistrationService service = new RegistrationService();
-
         boolean result = service.register(student, course);
 
         assertTrue(result);
@@ -106,16 +82,11 @@ class RegistrationServiceTest {
 
     @Test
     void shouldRejectDuplicateRegistration() {
-
         Student student = new Student("S101", "Anita");
 
         Course course = new Course(
-                "CS301",
-                "Data Structures",
-                4,
-                30,
-                true,
-                null
+                "CS301", "Data Structures",
+                4, 30, true, null
         );
 
         RegistrationService service = new RegistrationService();
@@ -131,7 +102,6 @@ class RegistrationServiceTest {
 
     @Test
     void shouldRejectRegistrationWhenCreditLimitIsExceeded() {
-
         Student student = new Student("S101", "Anita");
 
         // Simulate 20 existing credits.
@@ -142,16 +112,11 @@ class RegistrationServiceTest {
         student.addRegistration("CS203", 4);
 
         Course course = new Course(
-                "CS301",
-                "Data Structures",
-                4,
-                30,
-                true,
-                null
+                "CS301", "Data Structures",
+                4, 30, true, null
         );
 
         RegistrationService service = new RegistrationService();
-
         boolean result = service.register(student, course);
 
         assertFalse(result);
@@ -162,23 +127,17 @@ class RegistrationServiceTest {
 
     @Test
     void shouldRejectRegistrationWhenCourseIsAtCapacity() {
-
         Student student = new Student("S102", "Ravi");
 
         Course course = new Course(
-                "CS301",
-                "Data Structures",
-                4,
-                1,
-                true,
-                null
+                "CS301", "Data Structures",
+                4, 1, true, null
         );
 
-        // Fill the course's only seat.
+        // Fill the only available seat.
         course.incrementEnrollment();
 
         RegistrationService service = new RegistrationService();
-
         boolean result = service.register(student, course);
 
         assertFalse(result);
@@ -189,28 +148,78 @@ class RegistrationServiceTest {
 
     @Test
     void shouldAllowRegistrationWhenExactlyOneSeatRemains() {
-
         Student student = new Student("S103", "Priya");
 
         Course course = new Course(
-                "CS301",
-                "Data Structures",
-                4,
-                2,
-                true,
-                null
+                "CS301", "Data Structures",
+                4, 2, true, null
         );
 
         // One seat is occupied; one seat remains.
         course.incrementEnrollment();
 
         RegistrationService service = new RegistrationService();
-
         boolean result = service.register(student, course);
 
         assertTrue(result);
         assertTrue(student.isRegistered("CS301"));
         assertEquals(4, student.getTotalCredits());
         assertEquals(2, course.getCurrentEnrollment());
+    }
+
+    @Test
+    void shouldAcceptRegistrationWhenCs301PrerequisiteIsCompleted() {
+        Student student = new Student("S104", "Arun");
+        student.addCompletedPrerequisite("CS301");
+
+        Course course = new Course(
+                "CS401", "Advanced Algorithms",
+                4, 30, true, "CS301"
+        );
+
+        RegistrationService service = new RegistrationService();
+        boolean result = service.register(student, course);
+
+        assertTrue(result);
+        assertTrue(student.isRegistered("CS401"));
+        assertEquals(4, student.getTotalCredits());
+        assertEquals(1, course.getCurrentEnrollment());
+    }
+
+    @Test
+    void shouldAcceptCs3a1AsEquivalentPrerequisiteForCs301() {
+        Student student = new Student("S105", "Meera");
+        student.addCompletedPrerequisite("CS3A1");
+
+        Course course = new Course(
+                "CS401", "Advanced Algorithms",
+                4, 30, true, "CS301"
+        );
+
+        RegistrationService service = new RegistrationService();
+        boolean result = service.register(student, course);
+
+        assertTrue(result);
+        assertTrue(student.isRegistered("CS401"));
+        assertEquals(4, student.getTotalCredits());
+        assertEquals(1, course.getCurrentEnrollment());
+    }
+
+    @Test
+    void shouldRejectRegistrationWhenNeitherEquivalentPrerequisiteIsCompleted() {
+        Student student = new Student("S106", "Kiran");
+
+        Course course = new Course(
+                "CS401", "Advanced Algorithms",
+                4, 30, true, "CS301"
+        );
+
+        RegistrationService service = new RegistrationService();
+        boolean result = service.register(student, course);
+
+        assertFalse(result);
+        assertFalse(student.isRegistered("CS401"));
+        assertEquals(0, student.getTotalCredits());
+        assertEquals(0, course.getCurrentEnrollment());
     }
 }
