@@ -1,3 +1,4 @@
+
 package com.university;
 
 public class RegistrationService {
@@ -22,7 +23,7 @@ public class RegistrationService {
 
         if (prerequisite != null
                 && !prerequisite.isBlank()
-                && !student.hasCompletedPrerequisite(prerequisite)) {
+                && !hasRequiredPrerequisite(student, prerequisite)) {
             return false;
         }
 
@@ -37,5 +38,16 @@ public class RegistrationService {
         course.incrementEnrollment();
 
         return true;
+    }
+
+    private boolean hasRequiredPrerequisite(
+            Student student, String prerequisite) {
+
+        if (student.hasCompletedPrerequisite(prerequisite)) {
+            return true;
+        }
+
+        return "CS301".equals(prerequisite)
+                && student.hasCompletedPrerequisite("CS3A1");
     }
 }
