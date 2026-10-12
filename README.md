@@ -1,70 +1,59 @@
-# Student Course Registration System
+## Kubernetes Deployment
 
-## Project Overview
+### Resources
 
-This project implements a Java-based course registration system using Maven. It validates course capacity, student credit limits, course activity, duplicate registrations, and prerequisites.
+- `deployment.yaml` defines an NGINX Deployment using image `nginx:1.27` with two initial replicas.
+- `service.yaml` exposes the Deployment using a NodePort Service on port `30080`.
 
-## Project Structure
+### Deploy
 
-The project uses a Maven multi-module structure.
+Run these commands from the repository root:
 
-- `pom.xml` — Parent POM that manages the child module, Java compiler configuration, and shared JUnit version.
-- `course-registration-app/pom.xml` — Child POM that defines the application artifact and test dependency.
-- `course-registration-app/src/main/java/` — Application source code.
-- `course-registration-app/src/test/java/` — JUnit test cases.
-- `course-registration-app/target/` — Generated build output, test reports, and JAR artifact.
-
-## Technology Stack
-
-- Java 17
-- Apache Maven
-- JUnit 5
-
-## Dependency Management
-
-The parent POM declares the JUnit Jupiter version in its `dependencyManagement` section. The child module declares the JUnit Jupiter dependency without specifying the version again.
-
-The parent POM manages the Maven Compiler and Surefire plugin versions. The compiler is configured for Java 17, and Surefire executes the JUnit 5 tests.
-
-## Build and Test Instructions
-
-Run the following commands from the repository root.
-
-### Run tests
-
-```bash
-mvn clean test
+```powershell
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
 ```
 
-### Package the application
+### Verify the deployment
 
-```bash
-mvn package
+```powershell
+kubectl get nodes
+kubectl get deployments
+kubectl get pods
+kubectl get services
 ```
 
-Maven builds the parent project and the `course-registration-app` child module through its reactor.
+The Deployment should initially have two ready replicas.
 
-## Test Results
+### Access NGINX
 
-Verified on October 13, 2026:
+```powershell
+minikube service nginx-service
+```
 
-- CourseTest: 3 tests
-- RegistrationServiceTest: 11 tests
-- Total: 14 tests
-- Failures: 0
-- Errors: 0
-- Skipped: 0
-- Build result: BUILD SUCCESS
+This command opens the service in a browser or prints a URL to access it.
 
-## Build Artifact
+### Scale to three replicas
 
-The generated JAR is located at:
+```powershell
+kubectl scale deployment nginx-deployment --replicas=3
+kubectl get deployments
+kubectl get pods
+```
 
-`course-registration-app/target/course-registration-app-1.0-SNAPSHOT.jar`
+Verify that all three replicas become ready.
 
-## Continuous Integration
+### Verify self-healing
 
-The Jenkins Declarative Pipeline should run the Maven build from the repository root. JUnit reports and the packaged JAR must be collected from the child module's `target` directory.
+Delete one pod using its actual name:
 
-- Test reports: `course-registration-app/target/surefire-reports/TEST-*.xml`
-- JAR artifacts: `course-registration-app/target/*.jar`
+```powershell
+kubectl delete pod <pod-name>
+kubectl get pods
+```
+
+Kubernetes should create a replacement pod so that the Deployment returns to three replicas.
+
+### Evidence
+
+Record the actual output of the deployment, service, scaling, and pod replacement commands. Include screenshots of the running NGINX page and the Kubernetes resources if required by the submission.
