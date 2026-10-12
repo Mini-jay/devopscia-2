@@ -1,3 +1,4 @@
+
 package com.university;
 
 import org.junit.jupiter.api.Test;
@@ -50,6 +51,8 @@ class RegistrationServiceTest {
 
         assertFalse(result);
         assertFalse(student.isRegistered("CS301"));
+        assertEquals(0, student.getTotalCredits());
+        assertEquals(0, course.getCurrentEnrollment());
     }
 
     @Test
@@ -72,6 +75,8 @@ class RegistrationServiceTest {
 
         assertFalse(result);
         assertFalse(student.isRegistered("CS401"));
+        assertEquals(0, student.getTotalCredits());
+        assertEquals(0, course.getCurrentEnrollment());
     }
 
     @Test
@@ -95,6 +100,8 @@ class RegistrationServiceTest {
 
         assertTrue(result);
         assertTrue(student.isRegistered("CS401"));
+        assertEquals(4, student.getTotalCredits());
+        assertEquals(1, course.getCurrentEnrollment());
     }
 
     @Test
@@ -127,7 +134,7 @@ class RegistrationServiceTest {
 
         Student student = new Student("S101", "Anita");
 
-        // Simulate 20 existing credits
+        // Simulate 20 existing credits.
         student.addRegistration("CS101", 4);
         student.addRegistration("CS102", 4);
         student.addRegistration("CS201", 4);
@@ -149,5 +156,61 @@ class RegistrationServiceTest {
 
         assertFalse(result);
         assertFalse(student.isRegistered("CS301"));
+        assertEquals(20, student.getTotalCredits());
+        assertEquals(0, course.getCurrentEnrollment());
+    }
+
+    @Test
+    void shouldRejectRegistrationWhenCourseIsAtCapacity() {
+
+        Student student = new Student("S102", "Ravi");
+
+        Course course = new Course(
+                "CS301",
+                "Data Structures",
+                4,
+                1,
+                true,
+                null
+        );
+
+        // Fill the course's only seat.
+        course.incrementEnrollment();
+
+        RegistrationService service = new RegistrationService();
+
+        boolean result = service.register(student, course);
+
+        assertFalse(result);
+        assertFalse(student.isRegistered("CS301"));
+        assertEquals(0, student.getTotalCredits());
+        assertEquals(1, course.getCurrentEnrollment());
+    }
+
+    @Test
+    void shouldAllowRegistrationWhenExactlyOneSeatRemains() {
+
+        Student student = new Student("S103", "Priya");
+
+        Course course = new Course(
+                "CS301",
+                "Data Structures",
+                4,
+                2,
+                true,
+                null
+        );
+
+        // One seat is occupied; one seat remains.
+        course.incrementEnrollment();
+
+        RegistrationService service = new RegistrationService();
+
+        boolean result = service.register(student, course);
+
+        assertTrue(result);
+        assertTrue(student.isRegistered("CS301"));
+        assertEquals(4, student.getTotalCredits());
+        assertEquals(2, course.getCurrentEnrollment());
     }
 }
