@@ -45,7 +45,6 @@ Verify that all three replicas become ready.
 
 ### Verify self-healing
 
-Delete one pod using its actual name:
 
 ```powershell
 kubectl delete pod <pod-name>
@@ -54,6 +53,3 @@ kubectl get pods
 
 Kubernetes should create a replacement pod so that the Deployment returns to three replicas.
 
-### Evidence
-
-Record the actual output of the deployment, service, scaling, and pod replacement commands. Include screenshots of the running NGINX page and the Kubernetes resources if required by the submission.
